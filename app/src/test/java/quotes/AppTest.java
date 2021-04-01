@@ -4,11 +4,41 @@
 package quotes;
 
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 public class AppTest {
-    @Test public void testAppHasAGreeting() {
-        App classUnderTest = new App();
-        assertNotNull("app should have a greeting", classUnderTest.getGreeting());
+
+    @Test
+    public void GetSpecificQuoteTest() {
+        //get by author
+        List<Quote> quotes = new ArrayList<>();
+        quotes.add( new Quote("author1", "nlikes", "something profound as can be"));
+        quotes.add(new Quote("author2", "nlikes", "something else profound"));
+
+        //test author
+        String[] args = {"author","author1"};
+        String result = App.getSpecificQuote(args, quotes);
+        assertEquals("getSpecificQuote should work as expected",
+                "author1 said: something profound as can be", result);
+
+        args = new String[]{"author","author2"};
+        result = App.getSpecificQuote(args, quotes);
+        assertEquals("getSpecificQuote should work as expected",
+                "author2 said: something else profound", result);
+
+        //test contains
+        args = new String[]{"contains","else"};
+        result = App.getSpecificQuote(args, quotes);
+        assertEquals("getSpecificQuote should work as expected",
+                "author2 said: something else profound", result);
+
+        args = new String[]{"contains","as can be"};
+        result = App.getSpecificQuote(args, quotes);
+        assertEquals("getSpecificQuote should work as expected",
+                "author1 said: something profound as can be", result);
     }
 }
