@@ -23,32 +23,37 @@ public class App {
         System.out.println(getSpecificQuote(args, quotes));
     }
 
-    public static List<Quote> getQuotes()throws FileNotFoundException {
+    public static List<Quote> getQuotes() throws FileNotFoundException {
         Gson gson = new Gson();
         FileReader reader;
         try {
-            reader = new FileReader("app/src/test/resources/recentquotes.json");
+            reader = new FileReader("src/test/resources/recentquotes.json");
         } catch (FileNotFoundException e) {
-            throw new FileNotFoundException();
+            try {
+                reader = new FileReader("app/src/test/resources/recentquotes.json");
+            } catch (FileNotFoundException ex) {
+                throw new FileNotFoundException();
+            }
         }
 
         //https://howtodoinjava.com/gson/gson-parse-json-array/
-        Type userListType = new TypeToken<ArrayList<Quote>>(){}.getType();
+        Type userListType = new TypeToken<ArrayList<Quote>>() {
+        }.getType();
         return gson.fromJson(reader, userListType);
     }
 
-    public static String getSpecificQuote(String[] args, List<Quote> quotes){
+    public static String getSpecificQuote(String[] args, List<Quote> quotes) {
         //if applicable filter quotes list
-        if (args.length > 1 && args[0].equals("author")){
+        if (args.length > 1 && args[0].equals("author")) {
             quotes = quotes.stream().filter(quote -> quote.author.equals(args[1])).collect(Collectors.toList());
             if (quotes.size() == 0) return "No quotes found :'(";
         }
-        if (args.length > 1 && args[0].equals("contains")){
+        if (args.length > 1 && args[0].equals("contains")) {
             quotes = quotes.stream().filter(quote -> quote.text.contains(args[1])).collect(Collectors.toList());
             if (quotes.size() == 0) return "No quotes found :'(";
         }
         //get a single random quote
-        Quote quote = quotes.get(((int)(Math.random() * (quotes.size()-1))));
+        Quote quote = quotes.get(((int) (Math.random() * (quotes.size() - 1))));
         return String.format("%s said: %s", quote.author, quote.text);
     }
 }
