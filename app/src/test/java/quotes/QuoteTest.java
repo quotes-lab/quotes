@@ -1,12 +1,12 @@
 package quotes;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import static org.junit.Assert.*;
 
-public class QuoteTest extends TestCase {
+public class QuoteTest {
 
+    @Test
     public void QuoteTestToString() {
         Quote quote1 = new Quote("author1", "nlikes", "something profound");
         Quote quote2 = new Quote("author2", "nlikes", "something else profound");
