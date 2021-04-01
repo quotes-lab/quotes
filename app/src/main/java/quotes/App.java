@@ -12,17 +12,15 @@ import java.io.FileReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class App {
 
     public static void main(String[] args) throws FileNotFoundException {
         //open file and push json to array
         List<Quote> quotes = getQuotes();
-        //get a single random quote
-        Quote quote = quotes.get(((int)(Math.random() * (quotes.size()-1))));
-        String formattedQuote = String.format("%s said: %s", quote.author, quote.text);
         //print quote
-        System.out.println(formattedQuote);
+        System.out.println(getSpecificQuote(args, quotes));
     }
 
     public static List<Quote> getQuotes()throws FileNotFoundException {
@@ -37,5 +35,20 @@ public class App {
         //https://howtodoinjava.com/gson/gson-parse-json-array/
         Type userListType = new TypeToken<ArrayList<Quote>>(){}.getType();
         return gson.fromJson(reader, userListType);
+    }
+
+    public static String getSpecificQuote(String[] args, List<Quote> quotes){
+        //if applicable filter quotes list
+        if (args.length > 1 && args[0].equals("author")){
+            quotes = quotes.stream().filter(quote -> quote.author.equals(args[1])).collect(Collectors.toList());
+            if (quotes.size() == 0) return "No quotes found :'(";
+        }
+        if (args.length > 1 && args[0].equals("contains")){
+            quotes = quotes.stream().filter(quote -> quote.text.contains(args[1])).collect(Collectors.toList());
+            if (quotes.size() == 0) return "No quotes found :'(";
+        }
+        //get a single random quote
+        Quote quote = quotes.get(((int)(Math.random() * (quotes.size()-1))));
+        return String.format("%s said: %s", quote.author, quote.text);
     }
 }
