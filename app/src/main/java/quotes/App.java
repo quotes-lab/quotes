@@ -4,23 +4,57 @@
 package quotes;
 
 import com.google.gson.Gson;
+import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.google.gson.reflect.TypeToken;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class App {
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
         //open file and push json to array
-        List<Quote> quotes = getQuotes();
+        List<Quote> quotes;
+        try {
+            quotes = getQuotesFromUrl();
+        } catch ( Exception e){
+            quotes = getQuotes();
+        }
         //print quote
         System.out.println(getSpecificQuote(args, quotes));
+    }
+
+    private static List<Quote> getQuotesFromUrl() throws IOException {
+
+        String urlString = "http://ron-swanson-quotes.herokuapp.com/v2/quotes";
+        URL url = new URL(urlString);
+
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        // Time till exception thrown
+        connection.setConnectTimeout(5000);
+        // Response Code
+        connection.getResponseCode();
+
+        InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+        BufferedReader buff = new BufferedReader(reader);
+        String result = buff.readLine();
+        Gson gson = new Gson();
+        Quote quote = gson.fromJson(result, Quote.class);
+        /* "TODO"">? */
+        System.out.println("Got from URL");
+        System.out.println(buff);
+        System.out.println(buff.readLine());
+        List<Quote> quotes = new ArrayList<>();
+        quotes.add(quote);
+        return quotes;
+
     }
 
     public static List<Quote> getQuotes() throws FileNotFoundException {

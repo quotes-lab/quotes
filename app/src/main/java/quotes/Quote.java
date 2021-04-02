@@ -8,10 +8,17 @@ public class Quote {
       String likes;
       String text;
 
+    public Quote(String quoteAuthor, String quoteText) {
+        this.author = quoteAuthor;
+        this.text = quoteText;
+    }
+
     public Quote(String author, String likes, String text) {
         this.author = author;
         this.likes = likes;
         this.text = text;
+
+
     }
 
     @Override
@@ -23,3 +30,4 @@ public class Quote {
                 '}';
     }
 }
+
