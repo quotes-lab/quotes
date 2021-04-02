@@ -4,22 +4,20 @@
 package quotes;
 
 import com.google.gson.Gson;
-import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class App {
 
-    public static final String APP_SMALL_JSON = "app/src/test/resources/small.json";
+    public static final String APP_JSON = "app/src/test/resources/recentquotes.json";
+    public static final String SRC_JSON = "src/test/resources/recentquotes.json";
 
     public static void main(String[] args) throws IOException {
         //open file and push json to array
@@ -70,10 +68,15 @@ public class App {
         System.out.println("Made here");
 
         try {
-            gson.toJson(quotes, new FileWriter("app/src/test/resources/small.json", false));
+            FileWriter write = new FileWriter(APP_JSON);
+            gson.toJson(quotes, write);
+            write.close();
         } catch (FileNotFoundException e){
+            System.out.println(e);
             try{
-               gson.toJson(quotes, new FileWriter("src/test/resources/small.json", false));
+                FileWriter write = new FileWriter(SRC_JSON);
+                gson.toJson(quotes, write);
+                write.close();
             } catch (FileNotFoundException ex){
                 System.out.println(ex);
             }
@@ -84,10 +87,10 @@ public class App {
         Gson gson = new Gson();
         FileReader reader;
         try {
-            reader = new FileReader("src/test/resources/recentquotes.json");
+            reader = new FileReader(APP_JSON);
         } catch (FileNotFoundException e) {
             try {
-                reader = new FileReader(APP_SMALL_JSON);
+                reader = new FileReader(SRC_JSON);
             } catch (FileNotFoundException ex) {
                 throw new FileNotFoundException();
             }
