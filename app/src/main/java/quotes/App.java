@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 
 public class App {
 
+    public static final String APP_SMALL_JSON = "app/src/test/resources/small.json";
+
     public static void main(String[] args) throws IOException {
         //open file and push json to array
         List<Quote> quotes;
@@ -49,8 +51,8 @@ public class App {
         BufferedReader buff = new BufferedReader(reader);
         String result = buff.readLine();
         Gson gson = new Gson();
-        RonSwanson[] quote = gson.fromJson(result, RonSwanson[].class);
-        Quote apiQuote = new Quote(quote[0].quote, null, null);
+        String quote = result.substring(1, result.length()-1);
+        Quote apiQuote = new Quote("Ron Swanson", quote);
         appendToJson(apiQuote);
         System.out.println("Got from URL");
         System.out.println(buff);
@@ -66,8 +68,16 @@ public class App {
         quotes.add(json);
         Gson gson = new Gson();
         System.out.println("Made here");
-        gson.toJson(quotes, new FileWriter("src/test/resources/small.json", false));
-        return;
+
+        try {
+            gson.toJson(quotes, new FileWriter("app/src/test/resources/small.json", false));
+        } catch (FileNotFoundException e){
+            try{
+               gson.toJson(quotes, new FileWriter("src/test/resources/small.json", false));
+            } catch (FileNotFoundException ex){
+                System.out.println(ex);
+            }
+        }
     }
 
     public static List<Quote> getQuotes() throws FileNotFoundException {
@@ -77,7 +87,7 @@ public class App {
             reader = new FileReader("src/test/resources/recentquotes.json");
         } catch (FileNotFoundException e) {
             try {
-                reader = new FileReader("app/src/test/resources/recentquotes.json");
+                reader = new FileReader(APP_SMALL_JSON);
             } catch (FileNotFoundException ex) {
                 throw new FileNotFoundException();
             }
