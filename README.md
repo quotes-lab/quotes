@@ -1,6 +1,6 @@
 # quotes
 
-This application will print a random quote.
+This application will print a random quote. As well as save a quote from the Ron Swanson api `"http://ron-swanson-quotes.herokuapp.com/v2/quotes"`
 
 ## Commands for commandline only
 

@@ -6,31 +6,91 @@ package quotes;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class App {
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static final String APP_JSON = "app/src/test/resources/recentquotes.json";
+    public static final String SRC_JSON = "src/test/resources/recentquotes.json";
+
+    public static void main(String[] args) throws IOException {
         //open file and push json to array
-        List<Quote> quotes = getQuotes();
+        List<Quote> quotes;
+        try {
+            quotes = getQuotesFromUrl();
+        } catch ( Exception e){
+            System.out.println(e.getMessage());
+            System.out.println("API Call fail");
+            quotes = getQuotes();
+        }
         //print quote
         System.out.println(getSpecificQuote(args, quotes));
+    }
+
+    private static List<Quote> getQuotesFromUrl() throws IOException {
+
+        String urlString = "http://ron-swanson-quotes.herokuapp.com/v2/quotes";
+        URL url = new URL(urlString);
+
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        // Time till exception thrown
+        connection.setConnectTimeout(5000);
+        // Response Code
+        connection.getResponseCode();
+
+        InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+        BufferedReader buff = new BufferedReader(reader);
+        String result = buff.readLine();
+        Gson gson = new Gson();
+        String quote = result.substring(1, result.length()-1);
+        Quote apiQuote = new Quote("Ron Swanson", quote);
+        appendToJson(apiQuote);
+        System.out.println("Got from URL");
+        System.out.println(buff);
+        System.out.println(buff.readLine());
+        List<Quote> quotes = new ArrayList<>();
+        quotes.add(apiQuote);
+        return quotes;
+
+    }
+
+    private static void appendToJson(Quote json) throws IOException {
+        List<Quote> quotes = getQuotes();
+        quotes.add(json);
+        Gson gson = new Gson();
+        System.out.println("Made here");
+
+        try {
+            FileWriter write = new FileWriter(APP_JSON);
+            gson.toJson(quotes, write);
+            write.close();
+        } catch (FileNotFoundException e){
+            System.out.println(e);
+            try{
+                FileWriter write = new FileWriter(SRC_JSON);
+                gson.toJson(quotes, write);
+                write.close();
+            } catch (FileNotFoundException ex){
+                System.out.println(ex);
+            }
+        }
     }
 
     public static List<Quote> getQuotes() throws FileNotFoundException {
         Gson gson = new Gson();
         FileReader reader;
         try {
-            reader = new FileReader("src/test/resources/recentquotes.json");
+            reader = new FileReader(APP_JSON);
         } catch (FileNotFoundException e) {
             try {
-                reader = new FileReader("app/src/test/resources/recentquotes.json");
+                reader = new FileReader(SRC_JSON);
             } catch (FileNotFoundException ex) {
                 throw new FileNotFoundException();
             }
