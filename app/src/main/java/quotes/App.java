@@ -12,6 +12,7 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +25,8 @@ public class App {
         try {
             quotes = getQuotesFromUrl();
         } catch ( Exception e){
+            System.out.println(e.getMessage());
+            System.out.println("API Call fail");
             quotes = getQuotes();
         }
         //print quote
@@ -46,15 +49,25 @@ public class App {
         BufferedReader buff = new BufferedReader(reader);
         String result = buff.readLine();
         Gson gson = new Gson();
-        Quote quote = gson.fromJson(result, Quote.class);
-        /* "TODO"">? */
+        RonSwanson[] quote = gson.fromJson(result, RonSwanson[].class);
+        Quote apiQuote = new Quote(quote[0].quote, null, null);
+        appendToJson(apiQuote);
         System.out.println("Got from URL");
         System.out.println(buff);
         System.out.println(buff.readLine());
         List<Quote> quotes = new ArrayList<>();
-        quotes.add(quote);
+        quotes.add(apiQuote);
         return quotes;
 
+    }
+
+    private static void appendToJson(Quote json) throws IOException {
+        List<Quote> quotes = getQuotes();
+        quotes.add(json);
+        Gson gson = new Gson();
+        System.out.println("Made here");
+        gson.toJson(quotes, new FileWriter("src/test/resources/small.json", false));
+        return;
     }
 
     public static List<Quote> getQuotes() throws FileNotFoundException {
